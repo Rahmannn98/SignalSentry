@@ -43,8 +43,8 @@ struct MissionSummaryCardView: View {
         }
         .glassCardStyle()
         .padding()
+        }
     }
-}
 
 struct DifficultyBadge: View {
     let level: String
