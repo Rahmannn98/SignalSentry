@@ -7,13 +7,11 @@
 
 import SwiftUI
 
-struct ReceivingView {
+struct ReceivingView : View {
     var onNext: () -> Void
         
         var body: some View {
             ZStack {
-                Color.black.ignoresSafeArea()
-                
                 VStack(spacing: 20) {
                     Text("Receiving Signal...")
                         .font(.title)
@@ -32,3 +30,8 @@ struct ReceivingView {
             }
         }
 }
+#Preview {
+    ReceivingView(onNext: {})
+}
+
+

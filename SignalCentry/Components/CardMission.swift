@@ -6,8 +6,18 @@
 //
 
 import SwiftUI
+
 struct MissionSummaryCardView: View {
+   
+     var glassStyle: Glass = .regular
+     var selectedTint: Color = .clear
+     var cornerRadius: CGFloat = 16.0
+     var isInteractive: Bool = false
+    
+    let mission :Mission
     private let progressValue: Double = 0.68
+    
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 20) {
             HStack {
@@ -15,22 +25,23 @@ struct MissionSummaryCardView: View {
                     Text("CURRENT MISSION")
                         .font(.caption)
                         .foregroundColor(.secondary)
-                    Text("Sector 7 · Orbit Defense")
+                    Text("\(mission.sector) · \(mission.name)")
                         .font(.headline)
                         .foregroundColor(.primary)
                 }
                 Spacer()
-                DifficultyBadge(level: "MEDIUM", color: .orange)
+                DifficultyBadge(level: mission.difficulty, color: mission.difficultyColor)
             }
 
             HStack(spacing: 20) {
-                MetricView(title: "TARGETS", value: "248", valueColor: .cyan)
+                MetricView(title: "TARGETS", value: "\(mission.totalSignals)", valueColor: .cyan)
                 Divider().frame(height: 28).background(.secondary)
-                MetricView(title: "ACCURACY", value: "94%",valueColor: .green)
+                MetricView(title: "ACCURACY", value: "\(mission.accuracy)%", valueColor: .green)
                 Divider().frame(height: 28).background(.secondary)
-                MetricView(title: "PROGRESS", value: "68%", valueColor: .purple)
+                MetricView(title: "PROGRESS", value: "\(Int(mission.progress * 100))%", valueColor: .purple)
             }
-            ProgressView(value:progressValue, total: 1.0)
+            
+            ProgressView(value: mission.progress, total: 1.0)
                 .progressViewStyle(.linear)
                 .tint(
                     LinearGradient(
@@ -39,13 +50,30 @@ struct MissionSummaryCardView: View {
                         endPoint: .trailing
                     )
                 )
-                .scaleEffect(x:1, y: 2, anchor: .center)
+                .scaleEffect(x: 1, y: 2, anchor: .center)
         }
-        .glassCardStyle()
-        .padding()
-        }
+        .padding(16)
+                .background {
+                    ZStack {
+                      
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(.ultraThinMaterial)
+        
+                        RoundedRectangle(cornerRadius: cornerRadius)
+                            .fill(.clear)
+                            .glassEffect(
+                                glassStyle.tint(selectedTint).interactive(isInteractive),
+                                in: .rect(cornerRadius: cornerRadius)
+                            )
+                    }
+                }
+                .overlay {
+                    RoundedRectangle(cornerRadius: cornerRadius)
+                        .stroke(.white.opacity(0.15), lineWidth: 0.5)
+                }
+                .padding()
     }
-
+}
 struct DifficultyBadge: View {
     let level: String
     let color: Color
@@ -58,7 +86,8 @@ struct DifficultyBadge: View {
             .background(
                 Capsule().fill(color.opacity(0.15))
                     .overlay(
-                        Capsule().stroke(color.opacity(0.5),lineWidth: 1))
+                        Capsule().stroke(color.opacity(0.5), lineWidth: 1)
+                    )
             )
     }
 }
@@ -66,6 +95,7 @@ struct MetricView: View {
     let title: String
     let value: String
     let valueColor: Color
+    
     var body: some View {
         VStack(alignment: .leading, spacing: 2) {
             Text(title)
@@ -79,6 +109,21 @@ struct MetricView: View {
         .frame(maxWidth: .infinity, alignment: .leading)
     }
 }
+
 #Preview {
-    MissionSummaryCardView()
+       
+    let sampleMission = Mission(
+        name: "Orbit Defense", sector: "Sector 1", difficulty: "EASY", difficultyColor: .orange,status: .active,
+            totalSignals: 100, accuracy: 94, progress: 0.68,
+            completedMissionCount: 12, bestAccuracy: 98, bestStreak: 24, meteorsDefeated: 186
+        )
+        
+    ZStack {
+        
+            HeroOrbitView().opacity(0.6)
+            
+            MissionSummaryCardView(mission: sampleMission)
+                .padding(.horizontal, 16)
+        }
+        
 }
