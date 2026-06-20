@@ -6,6 +6,7 @@
 //  Created by Saifulloh Rahman on 11/06/26.
 //
 import SwiftUI
+import SceneKit
 
 struct HeroOrbitView: View{
     @State private var rotate = false
@@ -13,42 +14,48 @@ struct HeroOrbitView: View{
     var body: some View {
         ZStack{
             Circle()
-                .stroke(.blue.opacity(0.5),lineWidth: 1)
-                .frame(width: 220, height: 220)
-                .blur(radius: 0.5)
-            Circle()
-                .fill(LinearGradient(colors:[.cyan, .blue],
-                      startPoint: .topLeading, endPoint: .bottomTrailing))
-                .frame(width: 140, height: 140)
-                .shadow(color: .cyan.opacity(0.2), radius: 30)
-            Circle()
-                .stroke(Color.cyan.opacity(0.5),lineWidth: 2)
-                .frame(width: 180, height: 180)
+                .stroke(Color.cyan.opacity(0.01),lineWidth: 2)
+                .frame(width: 250, height: 220)
                 .rotationEffect(.degrees(rotate ? 360:0))
                 .animation(.linear(duration: 12).repeatForever(autoreverses: false),value: rotate)
-            HStack  {
-                Image(systemName: "globe.asia.australia.fill")
-                    .resizable()
-                    .scaledToFit()
-                    .frame(width: 150, height: 150)
-                    .foregroundStyle(
-                                LinearGradient(
-                                    colors: [
-                                        Color(red: 0.0, green: 0.7, blue: 0.1),
-                                        .green
-                                    ],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomLeading
-                                )
-                            )
-                    .rotationEffect(.degrees(rotate ?  360 : 0 ))
-                    .animation(
-                        .linear(duration: 10).repeatForever(autoreverses: false),value: rotate
-                    )
+            ZStack {
+                Circle()
+                    .fill(Color.blue.opacity(0.15))
+                    .frame(width: 290, height: 290)
+                    .blur(radius: 20)
+                SceneView(
+                    scene: makeEarthScene(),
+                    options: [
+                        .allowsCameraControl,
+                        .autoenablesDefaultLighting
+                    ]
+                )
+                .frame(width: 200, height: 280)
+                .clipShape(Circle())
             }
         }
         .onAppear {rotate = true}
         .padding(.vertical, 10)
+    }
+    private func makeEarthScene()->SCNScene{
+        guard let scene = SCNScene(named: "earth.usdz")else{
+            return SCNScene()
+        }
+        let earthNode = scene.rootNode
+            
+                let rotateAction = SCNAction.rotateBy(
+                    x: 0,
+                    y: CGFloat(Double.pi * 2),
+                    z: 0,
+                    duration: 30
+                )
+                let repeatForever = SCNAction.repeatForever(rotateAction)
+                
+                earthNode.runAction(repeatForever)
+        
+                scene.background.contents = Color.clear
+                
+                return scene
     }
 }
 #Preview {
